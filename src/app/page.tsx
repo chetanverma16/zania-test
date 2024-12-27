@@ -18,6 +18,7 @@ import { useState, useEffect } from "react";
 import SortableCard from "@/components/SortableCard";
 import { toast } from "sonner";
 import { Card } from "@prisma/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Home() {
   const [items, setItems] = useState<Card[]>([]);
@@ -88,8 +89,10 @@ export default function Home() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+      <div className="grid grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Skeleton key={index} className="h-60 w-full" />
+        ))}
       </div>
     );
   }
@@ -104,7 +107,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col gap-4 mx-auto max-w-4xl my-10">
+    <div className="flex flex-col gap-4">
       <DndContext
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
