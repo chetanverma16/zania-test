@@ -7,10 +7,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "../ui/button";
-import { GripVertical } from "lucide-react";
+import { GripVertical, Trash } from "lucide-react";
 
 const SortableCard = ({
   item,
+  onDelete,
 }: {
   item: {
     type: string;
@@ -18,6 +19,7 @@ const SortableCard = ({
     position: number;
     imageUrl: string;
   };
+  onDelete?: () => void;
 }) => {
   const {
     attributes,
@@ -66,12 +68,20 @@ const SortableCard = ({
           <CardHeader className="p-2">
             <div className="flex justify-between items-center mb-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 {...attributes}
                 {...listeners}
-                className="cursor-grab active:cursor-grabbing p-1 h-auto"
+                className="cursor-grab active:cursor-grabbing"
+                size="icon"
               >
-                <GripVertical className="h-5 w-5" />
+                <GripVertical />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onDelete ?? undefined}
+              >
+                <Trash />
               </Button>
             </div>
             <div

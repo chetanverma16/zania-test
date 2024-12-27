@@ -19,12 +19,15 @@ import SortableCard from "@/components/SortableCard";
 import { toast } from "sonner";
 import { Card } from "@prisma/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import AddCardDialog from "@/components/AddCardDialog";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const [items, setItems] = useState<Card[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // Fetch Initial Data
   useEffect(() => {
@@ -85,6 +88,41 @@ export default function Home() {
 
   const sensors = useSensors(useSensor(PointerSensor));
 
+  const handleAddCard = async (newCard: Omit<Card, "id">) => {
+    try {
+      const response = await fetch("/api/card", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newCard),
+      });
+      const addedCard = await response.json();
+      setItems((prevItems) => [...prevItems, addedCard]);
+      toast.success("Card added successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to add card");
+    }
+  };
+
+  const handleDeleteCard = async (id: number) => {
+    try {
+      await fetch("/api/card", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id }),
+      });
+      setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+      toast.success("Card deleted successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to delete card");
+    }
+  };
+
   if (!isMounted) return null;
 
   if (isLoading) {
@@ -108,6 +146,18 @@ export default function Home() {
 
   return (
     <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between rounded-2xl px-4 py-2 bg-white border border-gray-200">
+        <h2 className="text-sm">Zania Assigment</h2>
+        <Button size="sm" onClick={() => setIsDialogOpen(true)}>
+          Add Card
+        </Button>
+      </div>
+
+      <AddCardDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onAddCard={handleAddCard}
+      />
       <DndContext
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
@@ -120,7 +170,11 @@ export default function Home() {
         >
           <div className="grid grid-cols-3 gap-4">
             {items.map((item) => (
-              <SortableCard key={item.type} item={item} />
+              <SortableCard
+                key={item.type}
+                item={item}
+                onDelete={() => handleDeleteCard(item.id)}
+              />
             ))}
           </div>
         </SortableContext>
