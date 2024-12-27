@@ -15,17 +15,51 @@ import {
   rectSortingStrategy,
 } from "@dnd-kit/sortable";
 import { useState, useEffect } from "react";
-import data from "@/data/data.json";
 import SortableCard from "@/components/SortableCard";
+import { toast } from "sonner";
+import { Card } from "@prisma/client";
 
 export default function Home() {
-  const [items, setItems] = useState(data);
+  const [items, setItems] = useState<Card[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  // Fetch Initial Data
   useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("/api/cards");
+        const data = await response.json();
+        setItems(data);
+      } catch (error: unknown) {
+        console.error(error);
+        toast.error("Failed to load cards");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    // Save data every 5 seconds
+    const interval = setInterval(async () => {
+      await fetch("/api/cards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cards: items }),
+      });
+      toast.success("Changes saved successfully");
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [items]);
+
   const handleDragStart = (event: DragEndEvent) => {
     setActiveId(event.active.id.toString());
   };
@@ -34,10 +68,10 @@ export default function Home() {
     const { active, over } = event;
     setActiveId(null);
     if (over && active.id !== over.id) {
-      setItems((items) => {
-        const oldIndex = items.findIndex((item) => item.type === active.id);
-        const newIndex = items.findIndex((item) => item.type === over.id);
-        const updatedItems = arrayMove(items, oldIndex, newIndex);
+      setItems((prevItems) => {
+        const oldIndex = prevItems.findIndex((item) => item.type === active.id);
+        const newIndex = prevItems.findIndex((item) => item.type === over.id);
+        const updatedItems = arrayMove(prevItems, oldIndex, newIndex);
 
         // Update the position based on the new order
         return updatedItems.map((item, index) => ({
@@ -51,6 +85,23 @@ export default function Home() {
   const sensors = useSensors(useSensor(PointerSensor));
 
   if (!isMounted) return null;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p className="text-2xl font-semibold text-gray-600">No cards found</p>
+        <p className="text-gray-500">Create some cards to get started</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 mx-auto max-w-4xl my-10">
