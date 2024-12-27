@@ -48,8 +48,11 @@ const SortableCard = ({
   };
 
   const handleImageLoad = () => {
-    setIsLoading(false);
-    setIsImageLoaded(true);
+    // delay the loading of the image to make the animation smoother
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsImageLoaded(true);
+    }, 500);
   };
 
   return (
