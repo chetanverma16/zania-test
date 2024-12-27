@@ -16,21 +16,29 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Deployed [here](https://zania-test-chetan.vercel.app/)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Part 1: Frontend
 
-## Learn More
+### Frontend Implementation
 
-To learn more about Next.js, take a look at the following resources:
+Built a drag-and-drop card grid using dndkit library. Each card shows a document with its thumbnail. Added loading spinners while images load. Click any card to view the full image in an overlay (press ESC to close).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Part 2: Backend
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Backend Implementation
 
-## Deploy on Vercel
+Implemented a simple backend using Prisma ORM with PostgreSQL database. While the original task suggested using Starlette (Python), I chose a Node.js-based stack to better align with my frontend expertise. The backend handles basic CRUD operations for managing document metadata and image references.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Part 3: Tying It Up
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Implemented the backend and frontend together, in which we are saving the data every 5 seconds.
+
+## Part 4: Deployment
+
+Created a docker compose file and also deployed it on vercel.
+
+## Part 5: Improvements
+
+- Added a CREATE (api/card) endpoint to add a new card to the grid.
+- Added a DELETE (api/card) endpoint to delete a card from the grid.
